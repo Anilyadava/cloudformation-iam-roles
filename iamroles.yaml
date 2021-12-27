@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Template to create an IAM role
+Resources:
+  MyTestRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - lambda.amazonaws.com
+            Action: 
+              - 'sts:AssumeRole'
+      Description: Role to provide access to S3
+      Policies:
+        - PolicyName: EmbeddedInlinePolicy
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 'cloudformation:*'
+                Resource: '*'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+      RoleName: LambdaS3Access
+  DynamoDBManagedPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: Managed policy to attach to MyTestRole role
+      ManagedPolicyName: DynamoDBAccessPolicyForLamda
+      Path: /
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'dynamo:Query'
+              - 'dynamo:Scan'
+            Resource: '*'
+      Roles:
+        - !Ref MyTestRole
+  ExternalInlinePolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'sqs:*'
+            Resource: '*'
+      PolicyName: InlinePolicy 
+      Roles:
+        - !Ref MyTestRole
+Outputs:
+  RoleName:
+    Description: Name of created IAM Role
+    Value: !Ref MyTestRole
+  RoleArn:
+    Description: Arn of created Role
+    Value: !GetAtt MyTestRole.Arn            
