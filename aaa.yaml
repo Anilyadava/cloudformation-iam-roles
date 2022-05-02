@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This templates provison WebApp Instance and required resources of its own.
+Resources:
+  IDVWebASLC:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    # Metadata:
+    #   'AWS::CloudFormation::Init':
+    #     configSets:
+    #       default:
+    #         - setupCfnHup
+    #         - CfnHup_service
+    #     setupCfnHup:
+    #       files:
+    #         'C:\cfn\cfn-hup.conf':
+    #           content: !Sub |
+    #             [main]
+    #             stack=${AWS::StackId}
+    #             region=${AWS::Region}
+    #             interval=1
+    #         'C:\cfn\hooks.d\cfn-auto-reloader.conf':
+    #           content: !Sub >
+    #             [cfn-auto-reloader-hook]
+
+    #             triggers=post.update
+
+    #             path=Resources.IDVWebASLC.Metadata.AWS::CloudFormation::Init
+
+    #             action=cfn-init.exe -v --stack ${AWS::StackId} --resource
+    #             IDVWebASLC --region ${AWS::Region} --configsets
+    #             UpdateEnvironment
+    #     CfnHup_service:
+    #       services:
+    #         windows:
+    #           cfn-hup:
+    #             enabled: 'true'
+    #             ensureRunning: 'true'
+    #             files:
+    #               - 'c:\cfn\cfn-hup.conf'
+    #               - 'c:\cfn\hooks.d\cfn-auto-reloader.conf'
+    Properties:
+      InstanceMonitoring: true
+      # MetadataOptions:
+      #   HttpTokens: required 
+      ImageId: ami-0ed038ed0c0a476b6
+      InstanceType: t3.micro
+      # IamInstanceProfile: test-s3iam-JFI7377USM2W-EC2MetadataBaseProfile-9WVXSHX44JWJ
+      KeyName: ebs-test
+      SecurityGroups:
+        - sg-0eec7841eb3b14c98  
+        # - sg-0bc86163bbee66229
+        # - sg-0ce2414c13cf5b739 
+      # UserData:
+      #   'Fn::Base64': !Sub >
+      #     <script>
+
+      #     cfn-init.exe -v --stack ${AWS::StackId} --resource IDVWebASLC --region ${AWS::Region} 
+      #     --configsets default
+
+      #     cfn-signal.exe -e %errorlevel% --stack ${AWS::StackId} --resource IDVWebASG --region ${AWS::Region}
+
+      #     </script>
+  IDVWebASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      MinSize: 1
+      VPCZoneIdentifier:
+         - subnet-d9c47fb0
+      MaxSize: 3
+      DesiredCapacity: 1
+      HealthCheckGracePeriod: '1200'
+      LaunchConfigurationName:
+        Ref: IDVWebASLC
+      TerminationPolicies:
+        - OldestLaunchConfiguration
+        - NewestInstance
+      HealthCheckType: EC2
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        PauseTime: PT15M
+        MaxBatchSize: '1'
+        MinInstancesInService: 1
+        WaitOnResourceSignals: 'true'
+  IDVWebScaleUpPolicy:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      ScalingAdjustment: '1'
+      Cooldown: '300'
+      AutoScalingGroupName:
+        Ref: IDVWebASG
+      AdjustmentType: ChangeInCapacity
+  IDVWebScaleDownPolicy:
+    Type: 'AWS::AutoScaling::ScalingPolicy'
+    Properties:
+      ScalingAdjustment: '-1'
+      Cooldown: '300'
+      AutoScalingGroupName:
+        Ref: IDVWebASG
+      AdjustmentType: ChangeInCapacity
