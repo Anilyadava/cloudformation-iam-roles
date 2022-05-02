@@ -81,6 +81,7 @@ Resources:
       Tags:
         - Key: Name
           Value: test-iam    
+          PropagateAtLaunch: 'true'
     UpdatePolicy:
       AutoScalingRollingUpdate:
         PauseTime: PT15M
