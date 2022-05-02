@@ -78,15 +78,15 @@ Resources:
         - OldestLaunchConfiguration
         - NewestInstance
       HealthCheckType: EC2
+      Tags:
+        - Key: Name
+          Value: test-iam    
     UpdatePolicy:
       AutoScalingRollingUpdate:
         PauseTime: PT15M
         MaxBatchSize: '1'
         MinInstancesInService: 1
         WaitOnResourceSignals: 'true'
-      Tags:
-        - Key: Name
-          Value: 'test-iam'    
   IDVWebScaleUpPolicy:
     Type: 'AWS::AutoScaling::ScalingPolicy'
     Properties:
