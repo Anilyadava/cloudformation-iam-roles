@@ -41,30 +41,30 @@ Resources:
       InstanceMonitoring: true
       # MetadataOptions:
       #   HttpTokens: required 
-      ImageId: ami-0ed038ed0c0a476b6
+      ImageId: ami-0f9fc25dd2506cf6d
       InstanceType: t3.micro
-      # IamInstanceProfile: test-s3iam-JFI7377USM2W-EC2MetadataBaseProfile-9WVXSHX44JWJ
-      KeyName: ebs-test
+      IamInstanceProfile: arn:aws:iam::202608254091:instance-profile/CodeDeployEC2-test-iam
+      KeyName: K8s
       SecurityGroups:
-        - sg-0eec7841eb3b14c98  
+        - sg-00facb08bc869ba75
         # - sg-0bc86163bbee66229
         # - sg-0ce2414c13cf5b739 
-      # UserData:
-      #   'Fn::Base64': !Sub >
-      #     <script>
+      UserData:
+        # 'Fn::Base64': !Sub >
+        #   <script>
 
-      #     cfn-init.exe -v --stack ${AWS::StackId} --resource IDVWebASLC --region ${AWS::Region} 
-      #     --configsets default
+        #   cfn-init.exe -v --stack ${AWS::StackId} --resource IDVWebASLC --region ${AWS::Region} 
+        #   --configsets default
 
-      #     cfn-signal.exe -e %errorlevel% --stack ${AWS::StackId} --resource IDVWebASG --region ${AWS::Region}
+        #   cfn-signal.exe -e %errorlevel% --stack ${AWS::StackId} --resource IDVWebASG --region ${AWS::Region}
 
-      #     </script>
+        #   </script>
   IDVWebASG:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
       MinSize: 1
       VPCZoneIdentifier:
-         - subnet-d9c47fb0
+         - subnet-0c8a3c805280e4e39
       MaxSize: 3
       DesiredCapacity: 1
       HealthCheckGracePeriod: '1200'
