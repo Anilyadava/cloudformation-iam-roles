@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Template to create an IAM role
+Description: Template to create an IAM role and Policies
 Resources:
   MyTestRole:
     Type: AWS::IAM::Role
